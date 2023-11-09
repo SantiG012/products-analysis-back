@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from  database.connection import fetch_products
 import pandas as pd
 from dtos.correlation_dto import Correlation_dto
+from dtos.products_stars_dto import ProductsByStarsDto
 from data_processing.correlations.rating_reviews import calculate_correlation_between
 
 app = FastAPI()
@@ -17,11 +18,11 @@ def set_up():
         global products 
         products = fetch_products()
         products = pd.DataFrame(products)
-
+        print(products)
         return "Products fetched successfully!"
     except Exception as e:
         return f"An error occurred: {e}"
-
+    
 
 @app.get("/correlation/{column_a}/{column_b}")
 def read_item(column_a: str, column_b: str):
@@ -41,6 +42,26 @@ def read_item(column_a: str, column_b: str):
 
     return correlation_dto
 
+#Retorna los datos necesarios para el pie chart, la cantidad de productos asociadas a un intervalo de rating o stars
+@app.get("/productsByStars")
+def countProductsByStars():
+    if not _products_fetched():
+        raise HTTPException(status_code=500, detail="Products must be fetched first")
+
+    try:
+        productsCountByStars_df = products.groupby("stars").size().reset_index(name="total_productos")
+    
+        bins = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+        interval_labels = ["0 - 0.5","0.5 - 1","1 - 1.5", "1.5 - 2","2 - 2.5", "2.5 - 3","3 - 3.5","3.5 - 4","4 - 4.5","4.5 - 5"]
+        productsCountByStars_df["stars_interval"] = pd.cut(productsCountByStars_df["stars"], bins=bins, labels=interval_labels, right=True)
+        productsCount = productsCountByStars_df.groupby("stars_interval")["total_productos"].sum().reset_index(name="total_productos")
+        print(productsCount)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+
+    productsByStarsDto = ProductsByStarsDto(productsByStars_df=productsCount.to_dict(orient="records"))
+
+    return productsByStarsDto
 
 
 def _products_fetched():
