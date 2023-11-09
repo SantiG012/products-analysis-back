@@ -6,7 +6,7 @@ DATABASE_NAME = "project_db"
 COLLECTION_NAME = "products"
 
 def _get_connection_string() -> str:
-    return "mongodb+srv://santigomezg13:2289D5E58A02D3BFBB485855C9E46504@santig012.piad39a.mongodb.net/"
+    return os.getenv("CONNECTION_STRING")
 
 def _get_client_with(connection_string: str) -> MongoClient:
     CLIENT = MongoClient(connection_string)
