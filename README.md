@@ -14,7 +14,7 @@
     
 2. Install dependencies
 
-    - `pip install -r requirements.txt`
+    - ```pip install -r requirements.txt```
     
 3. Create a .env file with the following variables
 
@@ -22,7 +22,7 @@
 
 4. Run the project
 
-    - `uvicorn main:app --reload`
+    - ```uvicorn main:app --reload```
 
 ## Endpoints
 
