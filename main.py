@@ -5,6 +5,7 @@ from  database.connection import fetch_products
 import pandas as pd
 from dtos.correlation_dto import Correlation_dto
 from dtos.products_stars_dto import ProductsByStarsDto
+from dtos.topProduct_dto import TopProductDTO
 from data_processing.correlations.rating_reviews import calculate_correlation_between
 
 app = FastAPI()
@@ -63,9 +64,54 @@ def countProductsByStars():
 
     return productsByStarsDto
 
+@app.get("/topProductsByCategoryName/{category_name}")
+def calculate_ranking_score(category_name: str):
+    """
+    Calcula la puntuación de los mejores productos en una categoría específica.
+
+    Args:
+        category_name (str): El nombre de la categoría.
+
+    Returns:
+        TopProductDTO: DTO con información sobre los mejores 5 productos de la categoría.
+    """
+    if not _products_fetched():
+        raise HTTPException(status_code=500, detail="Products must be fetched first")
+    
+    if __category_exists(category_name):
+        raise HTTPException(status_code=404, detail=f"The category '{category_name}' was not found.")
+    
+    BEST_SELLER_WEIGHT = 1
+    STARS_WEIGHT = 0.5
+    REVIEWS_WEIGHT = 0.3
+    DISCOUNT_WEIGHT = 0.1
+    BOUGHT_WEIGHT = 0.1
+
+    category_df = products[(products['categoryName'] == category_name)].copy()
+    category_df['discount_percentage'] = ((category_df['listPrice'] - category_df['price']) / category_df['listPrice']) * 100
+
+    category_df['RankingScore'] = (
+        (category_df['isBestSeller'].astype(int) * BEST_SELLER_WEIGHT) +
+        (category_df['stars'] * STARS_WEIGHT) +
+        (category_df['reviews'] * REVIEWS_WEIGHT) +
+        (category_df['discount_percentage'] * DISCOUNT_WEIGHT) +
+        (category_df['boughtInLastMonth'] * BOUGHT_WEIGHT)
+    )
+
+    top_products = category_df.sort_values(by='RankingScore', ascending=False)
+
+    columns_to_show = ["title", "imgUrl", "stars", "price", "reviews", "isBestSeller"]
+
+    top_products_list = top_products[columns_to_show].head(5)
+
+    return TopProductDTO(Products_df = top_products_list.to_dict(orient="records"))
+
 
 def _products_fetched():
     return products is not None
 
 def _column_exists(column: str):
     return column in products.columns
+
+def __category_exists(category_name: str):
+    return category_name not in products["categoryName"].unique()
