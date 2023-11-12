@@ -19,7 +19,6 @@ def set_up():
         global products 
         products = fetch_products()
         products = pd.DataFrame(products)
-        print(products)
         return "Products fetched successfully!"
     except Exception as e:
         return f"An error occurred: {e}"
