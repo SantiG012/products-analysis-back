@@ -10,8 +10,7 @@
 
     - `venv\Scripts\activate.bat`
 
-**notes:**
-- You might need to activate the virtual environment every time you open the project with VSCode
+**NOTES:** You might need to activate the virtual environment every time you open the project with VSCode
     
 2. Install dependencies
 
@@ -29,7 +28,7 @@
 
 ### /
 
-- **GET**: Fetches all the products. This the endpoint that you need to call every time you start the app.
+- **GET**: Fetches all the products. This is the endpoint that you need to call every time you start the app.
 
 ### /correlation/{column1}/{column2}
 
@@ -42,3 +41,7 @@
 ### /topProductsByCategoryName/{category_name}
 
 - **GET**: Fetches the top products by category name.
+
+### /categories
+
+- **GET**: Fetches all the categories.

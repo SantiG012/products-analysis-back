@@ -105,6 +105,19 @@ def calculate_ranking_score(category_name: str):
 
     return TopProductDTO(Products_df = top_products_list.to_dict(orient="records"))
 
+@app.get("/categories")
+def get_categories():
+    """
+    Obtiene las categorías de los productos.
+
+    Returns:
+        list: Lista de categorías.
+    """
+    if not _products_fetched():
+        raise HTTPException(status_code=500, detail="Products must be fetched first")
+    
+    return products["categoryName"].unique().tolist()
+
 
 def _products_fetched():
     return products is not None
