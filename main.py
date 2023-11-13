@@ -53,7 +53,7 @@ def countProductsByStars():
     
         bins = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
         interval_labels = ["0 - 0.5","0.5 - 1","1 - 1.5", "1.5 - 2","2 - 2.5", "2.5 - 3","3 - 3.5","3.5 - 4","4 - 4.5","4.5 - 5"]
-        productsCountByStars_df["stars_interval"] = pd.cut(productsCountByStars_df["stars"], bins=bins, labels=interval_labels, right=False)
+        productsCountByStars_df["stars_interval"] = pd.cut(productsCountByStars_df["stars"], bins=bins, labels=interval_labels, right=True)
         productsCount = productsCountByStars_df.groupby("stars_interval")["total_productos"].sum().reset_index(name="total_productos")
         print(productsCount)
     except Exception as e:
