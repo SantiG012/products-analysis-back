@@ -7,10 +7,19 @@ from dtos.correlation_dto import Correlation_dto
 from dtos.products_stars_dto import ProductsByStarsDto
 from dtos.topProduct_dto import TopProductDTO
 from data_processing.correlations.rating_reviews import calculate_correlation_between
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 products = None
 
+# Allow all origins, methods, and headers. Adjust this as needed for your security requirements.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def set_up():
@@ -53,7 +62,7 @@ def countProductsByStars():
     
         bins = [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
         interval_labels = ["0 - 0.5","0.5 - 1","1 - 1.5", "1.5 - 2","2 - 2.5", "2.5 - 3","3 - 3.5","3.5 - 4","4 - 4.5","4.5 - 5"]
-        productsCountByStars_df["stars_interval"] = pd.cut(productsCountByStars_df["stars"], bins=bins, labels=interval_labels, right=True)
+        productsCountByStars_df["stars_interval"] = pd.cut(productsCountByStars_df["stars"], bins=bins, labels=interval_labels, right=False)
         productsCount = productsCountByStars_df.groupby("stars_interval")["total_productos"].sum().reset_index(name="total_productos")
         print(productsCount)
     except Exception as e:
